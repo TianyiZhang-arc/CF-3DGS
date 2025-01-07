@@ -4,9 +4,10 @@ os.sys.path.append(os.path.abspath(BASE_DIR))
 import argparse
 from pathlib import Path
 import shutil
-import json
 from glob import glob
 import numpy as np
+
+from eval_comp.eval_utils.io_utils import read_train_test_split, write_train_test_split
 
 def get_args_parser():
     
@@ -18,29 +19,6 @@ def get_args_parser():
     parser.add_argument("--split_path", type=str, default="")
     parser.add_argument("--create_image_set", action='store_true')
     return parser
-
-def read_train_test_split(split_path, img_base_path=None):
-    with open(split_path, 'r') as f:
-        train_test_split = json.load(f)
-    if isinstance(train_test_split['train'][0], int):
-        train_ids = train_test_split['train']
-        test_ids = train_test_split['test']
-        img_list = sorted(os.listdir(img_base_path))
-        train_img_list = [img_list[i] for i in train_ids]
-        test_img_list = [img_list[i] for i in test_ids]
-    elif isinstance(train_test_split['train'][0], str):
-        train_img_list = train_test_split['train']
-        test_img_list = train_test_split['test']
-    else:
-        raise ValueError('Error in reading train test split!')
-    return train_img_list, test_img_list
-
-def write_train_test_split(train_ids, test_ids, split_path):
-    train_test_split = {}
-    train_test_split['train'] = train_ids
-    train_test_split['test'] = test_ids
-    with open(split_path, 'w') as f:
-        json.dump(train_test_split, f, indent=4)
 
 def create_split_dtu(img_base_path, save_path, n_train_views=-1, n_test_views=-1, hold=8):
     """

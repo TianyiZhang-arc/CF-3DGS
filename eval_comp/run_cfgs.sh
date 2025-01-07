@@ -3,19 +3,22 @@
 if [ -n "$1" ]; then
     DATA_ROOT_DIR=$1
 else
-    DATA_ROOT_DIR="/cluster/project/cvg/students/zhangtia/data/"
+    # DATA_ROOT_DIR="/cluster/project/cvg/students/zhangtia/data/"
+    DATA_ROOT_DIR="/local/home/zhangtia/data/"
 fi
 
 if [ -n "$2" ]; then
     CODE_ROOT_DIR=$2
 else
-    CODE_ROOT_DIR="/cluster/project/cvg/students/zhangtia/projects/CF-3DGS/"
+    # CODE_ROOT_DIR="/cluster/project/cvg/students/zhangtia/projects/CF-3DGS/"
+    CODE_ROOT_DIR="/local/home/zhangtia/projects/CF-3DGS/"
 fi 
 
 if [ -n "$3" ]; then
     OUTPUT_ROOT_DIR=$3
 else
-    OUTPUT_ROOT_DIR="/cluster/project/cvg/students/zhangtia/projects/CF-3DGS/"
+    # OUTPUT_ROOT_DIR="/cluster/project/cvg/students/zhangtia/projects/CF-3DGS/"
+    OUTPUT_ROOT_DIR="/local/home/zhangtia/projects/CF-3DGS/"
 fi
 
 SOURCE_ROOT_DIR=${CODE_ROOT_DIR}/data/
@@ -48,6 +51,7 @@ for DATASET in "${DATASETS[@]}"; do
             SOURCE_DIR=${SOURCE_ROOT_DIR}/${DATASET}/${SCENE}/${N_VIEW}_views/
             SPLIT_PATH=${SOURCE_DIR}/train_test_split.json
             IMG_PATH=${SOURCE_DIR}/images/train/
+            SOURCE_PATH=${SOURCE_DIR}/sfm/
             # Absolute paths for results
             MODEL_PATH=${MODEL_ROOT_DIR}/${DATASET}/${SCENE}/${N_VIEW}_views/
             TEST_IMG_PATH=${SOURCE_DIR}/images/test/
@@ -64,11 +68,19 @@ for DATASET in "${DATASETS[@]}"; do
             --create_image_set
             "
 
-            # ---- run CF-3DGS ---- TODO
+            CMD_D="python ${CODE_ROOT_DIR}/eval_comp/create_dataset.py \
+            --source_path ${SOURCE_PATH}/ \
+            --gt_path ${GT_PATH} \
+            --img_base_path ${IMG_BASE_PATH} \
+            --split_path ${SPLIT_PATH} \
+            "
+
+            # ---- run CF-3DGS ----
             CMD_T="python run_cf3dgs.py \
-            -s ${IMG_PATH} \
+            -s ${SOURCE_PATH} \
+            --expname ${MODEL_PATH} \
             --mode train \
-            --data_type custom"
+            --data_type colmap"
 
             # ----- evaluation -----
             CMD_R="python render.py \
@@ -87,12 +99,13 @@ for DATASET in "${DATASETS[@]}"; do
             --pose_path ${POSE_PATH} \            
             "
             
-            # echo "========= ${SCENE}: Split Dataset ========="
+            # echo "========= ${SCENE}: Create Dataset ========="
             # eval $CMD_S
-            echo "========= ${SCENE}: Train ========="
-            eval $CMD_T
-            # echo "========= ${SCENE}: Render ========="
-            # eval $CMD_R
+            # eval $CMD_D
+            # echo "========= ${SCENE}: Train ========="
+            # eval $CMD_T
+            echo "========= ${SCENE}: Render ========="
+            eval $CMD_R
             # echo "========= ${SCENE}: Metric ========="
             # eval $CMD_M
             # echo "========= ${SCENE}: geometry ========="
