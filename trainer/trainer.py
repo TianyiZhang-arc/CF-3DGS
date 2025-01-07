@@ -265,11 +265,6 @@ class GaussianTrainer(object):
             train_views = scene.getTrainCameras().copy()
             all_views = train_views + test_views
 
-            # sample_rate = 8
-            sample_rate = 2 if "Family" in source_path else 8
-            ids = np.arange(len(all_views))
-            self.i_test = ids[int(sample_rate/2)::sample_rate]
-            self.i_train = np.array([i for i in ids if i not in self.i_test])
             if "eval" in self.model_cfg.mode:
                 # if self.model_cfg.eval_pose or self.model_cfg.eval_nvs:
                 # viewpoint_stack = scene.getTestCameras().copy()
@@ -285,6 +280,35 @@ class GaussianTrainer(object):
                 print(image_name)
             self.data = viewpoint_stack
             self.seq_len = len(viewpoint_stack)
+            # source_path = self.model_cfg.source_path
+            # model_cfg = copy(self.model_cfg)
+            # model_cfg.model_path = ""
+            # gaussians = GaussianModel(3)
+            # scene = Scene(model_cfg, gaussians, shuffle=False)
+            # test_views = scene.getTestCameras().copy()
+            # train_views = scene.getTrainCameras().copy()
+            # all_views = train_views + test_views
+
+            # # sample_rate = 8
+            # sample_rate = 2 if "Family" in source_path else 8
+            # ids = np.arange(len(all_views))
+            # self.i_test = ids[int(sample_rate/2)::sample_rate]
+            # self.i_train = np.array([i for i in ids if i not in self.i_test])
+            # if "eval" in self.model_cfg.mode:
+            #     # if self.model_cfg.eval_pose or self.model_cfg.eval_nvs:
+            #     # viewpoint_stack = scene.getTestCameras().copy()
+            #     viewpoint_stack = test_views
+            #     print("Test images: ", len(viewpoint_stack))
+            #     image_name = [c.image_name for c in viewpoint_stack]
+            #     print(image_name)
+            # else:
+            #     # viewpoint_stack = scene.getTrainCameras().copy()
+            #     viewpoint_stack = train_views
+            #     print("Train images: ", len(viewpoint_stack))
+            #     image_name = [c.image_name for c in viewpoint_stack]
+            #     print(image_name)
+            # self.data = viewpoint_stack
+            # self.seq_len = len(viewpoint_stack)
 
     def setup_model(self, pcd):
         radius = np.linalg.norm(pcd.points, axis=1).max()
@@ -574,14 +598,10 @@ class GaussianTrainer(object):
                                           pose=pose, load_depth=load_depth,
                                           load_gt=load_gt)
         elif self.data_type == "custom":
-            # return self.prepare_custom_data(idx, down_sample=down_sample,
-            #                                 orthogonal=orthogonal,
-            #                                 pose=pose,
-            #                                 load_depth=load_depth)
-            return self.prepare_data_from_viewpoint(idx, down_sample=down_sample,
-                                                    orthogonal=orthogonal,
-                                                    pose=pose,
-                                                    load_depth=load_depth)
+            return self.prepare_custom_data(idx, down_sample=down_sample,
+                                            orthogonal=orthogonal,
+                                            pose=pose,
+                                            load_depth=load_depth)
         else:
             return self.prepare_data_from_viewpoint(idx, down_sample=down_sample,
                                                     orthogonal=orthogonal,
