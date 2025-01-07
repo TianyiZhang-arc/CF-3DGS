@@ -9,7 +9,7 @@
 import os
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib import tight_layout
+# from matplotlib import tight_layout
 import copy
 from evo.core.trajectory import PosePath3D, PoseTrajectory3D
 from evo.main_ape import ape

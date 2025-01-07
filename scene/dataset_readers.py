@@ -162,7 +162,7 @@ def readColmapSceneInfo(path, images, eval):
         cam_extrinsics_gt, cam_intrinsics_gt = None, None
 
     # reading_dir = "images" if images == None else images
-    cam_infos_unsorted = readColmapCameras(cam_extrinsics=cam_extrinsics, cam_intrinsics=cam_intrinsics, images_folder=os.path.join(path, "images"), cam_extrinsics_gt=cam_extrinsics_gt)
+    cam_infos_unsorted = readColmapCameras(cam_extrinsics=cam_extrinsics, cam_intrinsics=cam_intrinsics, images_folder=os.path.join(path, "images"))
     cam_infos = sorted(cam_infos_unsorted.copy(), key = lambda x : x.image_name)
     train_cam_infos = cam_infos
     if eval: 
@@ -170,7 +170,7 @@ def readColmapSceneInfo(path, images, eval):
         test_image_names = os.listdir(test_image_folder)
         cam_extrinsics = {cam_extrinsics_gt[name].id: cam_extrinsics_gt[name] for name in test_image_names}
         cam_intrinsics = cam_intrinsics_gt.copy()
-        cam_infos_unsorted = readColmapCameras(cam_extrinsics=cam_extrinsics, cam_intrinsics=cam_intrinsics, images_folder=test_image_folder, cam_extrinsics_gt=cam_extrinsics_gt)
+        cam_infos_unsorted = readColmapCameras(cam_extrinsics=cam_extrinsics, cam_intrinsics=cam_intrinsics, images_folder=test_image_folder)
         cam_infos = sorted(cam_infos_unsorted.copy(), key = lambda x : x.image_name)
         test_cam_infos = cam_infos
     else:
@@ -178,20 +178,30 @@ def readColmapSceneInfo(path, images, eval):
 
     nerf_normalization = getNerfppNorm(train_cam_infos)
 
-    ply_path = os.path.join(path, "sparse/0/points3D.ply")
-    bin_path = os.path.join(path, "sparse/0/points3D.bin")
-    txt_path = os.path.join(path, "sparse/0/points3D.txt")
-    if not os.path.exists(ply_path):
-        print("Converting point3d.bin to .ply, will happen only the first time you open the scene.")
-        try:
-            xyz, rgb, _ = read_points3D_binary(bin_path)
-        except:
-            xyz, rgb, _ = read_points3D_text(txt_path)
-        storePly(ply_path, xyz, rgb)
-    try:
+    # ply_path = os.path.join(path, "sparse/0/points3D.ply")
+    # bin_path = os.path.join(path, "sparse/0/points3D.bin")
+    # txt_path = os.path.join(path, "sparse/0/points3D.txt")
+    # if not os.path.exists(ply_path):
+    #     print("Converting point3d.bin to .ply, will happen only the first time you open the scene.")
+    #     try:
+    #         xyz, rgb, _ = read_points3D_binary(bin_path)
+    #     except:
+    #         xyz, rgb, _ = read_points3D_text(txt_path)
+    #     storePly(ply_path, xyz, rgb)
+    # try:
+    #     pcd = fetchPly(ply_path)
+    # except:
+    #     pcd = None
+    pcd = None
+    if pcd is None: # random init  
+        num_pts = 30000  
+        # We create random points inside the bounds of the synthetic Blender scenes
+        xyz = (2 * np.random.random((num_pts, 3)) - 1) * nerf_normalization['radius'] - nerf_normalization['translate']
+        shs = np.random.random((num_pts, 3))
+        pcd = BasicPointCloud(points=xyz, colors=SH2RGB(shs), normals=np.zeros((num_pts, 3)))
+        ply_path = os.path.join(path, "sparse/0/", "points3D_random.ply")
+        storePly(ply_path, xyz, SH2RGB(shs) * 255)
         pcd = fetchPly(ply_path)
-    except:
-        pcd = None
 
     scene_info = SceneInfo(point_cloud=pcd,
                            train_cameras=train_cam_infos,

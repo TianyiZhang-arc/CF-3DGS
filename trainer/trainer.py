@@ -574,10 +574,14 @@ class GaussianTrainer(object):
                                           pose=pose, load_depth=load_depth,
                                           load_gt=load_gt)
         elif self.data_type == "custom":
-            return self.prepare_custom_data(idx, down_sample=down_sample,
-                                            orthogonal=orthogonal,
-                                            pose=pose,
-                                            load_depth=load_depth)
+            # return self.prepare_custom_data(idx, down_sample=down_sample,
+            #                                 orthogonal=orthogonal,
+            #                                 pose=pose,
+            #                                 load_depth=load_depth)
+            return self.prepare_data_from_viewpoint(idx, down_sample=down_sample,
+                                                    orthogonal=orthogonal,
+                                                    pose=pose,
+                                                    load_depth=load_depth)
         else:
             return self.prepare_data_from_viewpoint(idx, down_sample=down_sample,
                                                     orthogonal=orthogonal,

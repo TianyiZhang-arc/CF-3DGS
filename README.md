@@ -32,12 +32,13 @@
 The codes have been tested on python 3.10, CUDA>=11.6. The simplest way to install all dependences is to use [anaconda](https://www.anaconda.com/) and [pip](https://pypi.org/project/pip/) in the following steps: 
 
 ```bash
-conda create -n cf3dgs python=3.10
+conda create -n cf3dgs python=3.10 -y
 conda activate cf3dgs
-conda install conda-forge::cudatoolkit-dev=11.7.0
-conda install pytorch==2.0.0 torchvision==0.15.0 pytorch-cuda=11.7 -c pytorch -c nvidia
+conda install -c "nvidia/label/cuda-12.4" cuda-toolkit
+conda install -y pytorch torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia
 git clone --recursive git@github.com:NVlabs/CF-3DGS.git
 pip install -r requirements.txt
+# NOTE: install diff-gaussian-rasterization: need to clone
 ```
 
 ## Dataset Preparsion
