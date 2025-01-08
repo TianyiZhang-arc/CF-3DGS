@@ -1,7 +1,7 @@
 #!bin/bash
 
 ROOT_DIR=/local/home/zhangtia
-CONDA_ROOT_DIR="/local/home/zhangtia/miniconda3/bin/activate"
+CONDA_ROOT_DIR="/local/home/zhangtia/miniconda3/etc/profile.d/conda.sh"
 
 CMD_ENV="source ${CONDA_ROOT_DIR} && conda activate cf3dgs"
 CODE=${ROOT_DIR}/projects/CF-3DGS/

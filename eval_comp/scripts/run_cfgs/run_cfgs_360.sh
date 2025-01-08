@@ -24,7 +24,7 @@ fi
 if [ -n "$4" ]; then
     CONDA_ROOT_DIR=$4
 else
-    CONDA_ROOT_DIR="/local/home/zhangtia/miniconda3/bin/activate"
+    CONDA_ROOT_DIR="/local/home/zhangtia/miniconda3/etc/profile.d/conda.sh"
 fi
 
 SOURCE_ROOT_DIR=${CODE_ROOT_DIR}/data/
@@ -37,12 +37,12 @@ DATASETS=(
 
 SCENES=(
     room
-    stump
-    counter
-    bonsai
-    garden
-    kitchen
-    bicycle
+   stump
+   counter
+   bonsai
+   garden
+   kitchen
+   bicycle
     )
 
 N_VIEWS=(
@@ -60,7 +60,7 @@ for DATASET in "${DATASETS[@]}"; do
             DATA_DIR=${DATA_ROOT_DIR}/${DATASET}/${SCENE}/
             TNT_EVAL_PATH=${DATA_ROOT_DIR}/tnt_eval/${SCENE}/ # only for tnt
             IMG_BASE_PATH=${DATA_DIR}/${IMG_DIR}/
-            GT_PATH=${DATA_DIR}/colmap/
+            GT_PATH=${DATA_DIR}/
             SOURCE_DIR=${SOURCE_ROOT_DIR}/${DATASET}/${SCENE}/${N_VIEW}_views/
             SPLIT_PATH=${SOURCE_DIR}/train_test_split.json
             IMG_PATH=${SOURCE_DIR}/images/train/
@@ -91,7 +91,7 @@ for DATASET in "${DATASETS[@]}"; do
             "
 
             # ---- run CF-3DGS ----
-            CMD_T="python run_cf3dgs.py \
+            CMD_T="python ${CODE_ROOT_DIR}/run_cf3dgs.py \
             -s ${SOURCE_PATH} \
             --expname ${MODEL_PATH} \
             --mode train \
@@ -122,7 +122,8 @@ for DATASET in "${DATASETS[@]}"; do
             --ply_path ${PCD_PATH} \
             --pose_path ${POSE_PATH} \
             "
-            
+
+            eval $CMD_ENV_TRAIN
             echo "========= ${SCENE}: Create Dataset ========="
             eval $CMD_S
             eval $CMD_D
