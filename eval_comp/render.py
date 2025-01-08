@@ -27,7 +27,7 @@ from scene_eval.renderer import render
 
 from eval_utils.pose_utils import load_pose, assign_pose, save_pose
 from eval_utils.utils_poses.align_traj import align_ate_c2b_use_a2b
-from eval_utils.vis_utils import apply_depth_colormap
+from eval_utils.vis_utils import apply_depth_colormap, open3d_get_cameras
 # from utils.utils_2dgs import depth_to_normal
 from eval_utils.general_utils import get_expon_lr_func
 from eval_utils.graphics_utils import getWorld2View
@@ -76,6 +76,7 @@ def render_sets(dataset : ModelParams, iteration : int, pipeline : PipelineParam
         # align test poses to train poses
         test_cameras, train_cameras = scene.getTestCameras(), scene.getTrainCameras()
         load_pose(os.path.join(dataset.model_path, 'train_pose', f'pose_{iteration}.pt'), scene.getTrainCameras())
+        # w2c
         train_poses = [getWorld2View(train_cameras[i].R, train_cameras[i].T) for i in range(len(train_cameras))]
         train_poses = [train_cameras[i].c2w.inverse() for i in range(len(train_cameras))]
         train_poses_gt = [getWorld2View(train_cameras[i].R_gt, train_cameras[i].T_gt) for i in range(len(train_cameras))]
@@ -83,10 +84,13 @@ def render_sets(dataset : ModelParams, iteration : int, pipeline : PipelineParam
         test_poses_aligned = align_ate_c2b_use_a2b(torch.stack(train_poses_gt).inverse(), torch.stack(train_poses).inverse().cpu(), torch.stack(test_poses_gt).inverse()).inverse()
         train_poses_aligned = align_ate_c2b_use_a2b(torch.stack(train_poses_gt).inverse(), torch.stack(train_poses).inverse().cpu(), torch.stack(train_poses_gt).inverse()).inverse()
         test_cameras = assign_pose(test_cameras, test_poses_aligned)
-        # plot_alignment(torch.stack(train_poses).inverse(), torch.stack(train_poses_gt).inverse(), train_poses_aligned.inverse(), \
-        #                 torch.stack(test_poses_gt).inverse(), test_poses_aligned.inverse(), \
-        #                     test_cameras[0].intrinsic_matrix, test_cameras[0].image_height, test_cameras[0].image_width, scene, \
-        #                     save_path=os.path.join(dataset.model_path, 'test_pose', f'pose_{iteration}.rrd')) 
+        if args.debug:
+            plot_alignment_open3d(torch.stack(train_poses), torch.stack(train_poses_gt), train_poses_aligned, \
+                                  torch.stack(test_poses_gt), test_poses_aligned, test_cameras[0].intrinsic_matrix)
+            # plot_alignment(torch.stack(train_poses).inverse(), torch.stack(train_poses_gt).inverse(), train_poses_aligned.inverse(), \
+            #                 torch.stack(test_poses_gt).inverse(), test_poses_aligned.inverse(), \
+            #                     test_cameras[0].intrinsic_matrix, test_cameras[0].image_height, test_cameras[0].image_width, scene, \
+            #                     save_path=os.path.join(dataset.model_path, 'test_pose', f'pose_{iteration}.rrd')) 
         if args.optim_test_pose:          
             os.makedirs(os.path.join(dataset.model_path, 'test_pose'), exist_ok=True)
             test_pose_path = os.path.join(dataset.model_path, 'test_pose', f'pose_{iteration}.pt')
@@ -175,6 +179,30 @@ def optim_test_pose(path, cameras, render_pkgs, optim_iter=500, lr=0.001, enable
 #         rr.log(f"test_pose_aligned/{name}", rr.Transform3D(translation=test_pose_aligned.detach().cpu()[:3, 3], mat3x3=test_pose_aligned.detach().cpu()[:3, :3], scale=scale))
 #         rr.log(f"test_pose_aligned/{name}", rr.Pinhole(image_from_camera=intrinsics.detach().cpu(), resolution=[H, W]))
 #         rr.log(f"test_pose_aligned/{name}/image", rr.Image(gt_image))
+
+def plot_alignment_open3d(train_poses, train_poses_gt, train_poses_aligned, test_poses_gt, test_poses_aligned, intrinsics, cam_scale=0.05):
+    intr_np = intrinsics.cpu().numpy()
+    train_poses_np = [train_poses[i].cpu().numpy() for i in range(train_poses.shape[0])]
+    train_poses_gt_np = [train_poses_gt[i].cpu().numpy() for i in range(train_poses_gt.shape[0])]
+    train_poses_aligned_np = [train_poses_aligned[i].cpu().numpy() for i in range(train_poses_aligned.shape[0])]
+    test_poses_gt_np = [test_poses_gt[i].cpu().numpy() for i in range(test_poses_gt.shape[0])]
+    test_poses_aligned_np = [test_poses_aligned[i].cpu().numpy() for i in range(test_poses_aligned.shape[0])]
+    import open3d as o3d
+    vis = o3d.visualization.Visualizer()
+    vis.create_window()
+    RED = [1, 0, 0]
+    GREEN = [0, 1, 0]
+    PURPLE = [1, 0, 1]
+    BLACK = [0, 0, 0]
+    BLUE = [0, 0, 1]
+    vis_cams = open3d_get_cameras([intr_np for i in range(len(train_poses_np))], train_poses_np, color=RED, scale=cam_scale)
+    vis.add_geometry(vis_cams)
+    vis_cams = open3d_get_cameras([intr_np for i in range(len(test_poses_aligned_np))], test_poses_aligned_np, color=GREEN, scale=cam_scale)
+    vis.add_geometry(vis_cams)
+    vis_cams = open3d_get_cameras([intr_np for i in range(len(train_poses_aligned_np))], train_poses_aligned_np, color=PURPLE, scale=cam_scale)
+    vis.add_geometry(vis_cams)
+    vis.run()
+    import pdb;pdb.set_trace()
 
 if __name__ == "__main__":
     # Set up command line argument parser

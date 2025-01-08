@@ -24,7 +24,7 @@ fi
 if [ -n "$4" ]; then
     CONDA_ROOT_DIR=$4
 else
-    CONDA_ROOT_DIR="/local/home/zhangtia/miniconda3/etc/profile.d/conda.sh"
+    CONDA_ROOT_DIR="/local/home/zhangtia/miniconda3/bin/activate"
 fi
 
 SOURCE_ROOT_DIR=${CODE_ROOT_DIR}/data/
@@ -72,9 +72,9 @@ for DATASET in "${DATASETS[@]}"; do
             TEST_IMG_PATH=${SOURCE_DIR}/images/test/
 
             # ----- conda envs -----
-            CMD_ENV_EVAL="source ${CONDA_ROOT_DIR} && conda init && conda activate gs-geo"
-            CMD_ENV_TRAIN="source ${CONDA_ROOT_DIR} && conda init && conda activate cf3dgs"
-            CMD_ENV_MESH="source ${CONDA_ROOT_DIR} && conda init && conda activate gof"
+            CMD_ENV_EVAL="source ${CONDA_ROOT_DIR} && conda activate gs-geo"
+            CMD_ENV_TRAIN="source ${CONDA_ROOT_DIR} && conda activate cf3dgs"
+            CMD_ENV_MESH="source ${CONDA_ROOT_DIR} && conda activate gof"
 
             # ----- train test split -----
             CMD_S="python ${CODE_ROOT_DIR}/eval_comp/generate_split.py \

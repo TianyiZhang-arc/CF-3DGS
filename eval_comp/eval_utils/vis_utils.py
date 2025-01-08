@@ -1,5 +1,8 @@
 import matplotlib.pyplot as plt
 import torch
+import numpy as np
+from typing import List
+import open3d as o3d
 
 def apply_depth_colormap(
     depth,
@@ -32,3 +35,17 @@ def apply_depth_colormap(
         colored_image = colored_image * accumulation + (1 - accumulation)
 
     return colored_image
+
+def open3d_get_cameras(intrinsics: List[np.ndarray], poses: List[np.ndarray], color: List=[0., 0., 0.], scale: int=0.1):
+    """
+    Args:
+        poses: w2c
+    """
+    cameras = o3d.geometry.LineSet()
+    num_poses = len(poses)
+    for i in range(num_poses):
+        camera = o3d.geometry.LineSet.create_camera_visualization(int(intrinsics[i][0, 2] * 2), int(intrinsics[i][1, 2] * 2), intrinsics[i], poses[i], scale=scale)
+        color_list = [np.array(color) for j in range(np.asarray(camera.lines).shape[0])]
+        camera.colors = o3d.utility.Vector3dVector(np.stack(color_list, axis=0))
+        cameras += camera
+    return cameras
