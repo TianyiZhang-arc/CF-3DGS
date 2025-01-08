@@ -37,10 +37,15 @@ DATASETS=(
 
 SCENES=(
     Barn
+    Ignatius
+    Truck
+    Meetingroom
+    Courthouse
+    Caterpillar
     )
 
 N_VIEWS=(
-    12
+    -1
     )
 
 max_test_view=-1
