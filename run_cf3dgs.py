@@ -53,3 +53,5 @@ if __name__ == "__main__":
         trainer.eval_pose()
     end_time = datetime.now()
     print('Duration: {}'.format(end_time - start_time))
+    with open(os.path.join(pipe_cfg.expname, 'log.txt'), 'w') as f:
+        f.write('Training time: {} \n'.format(end_time - start_time))

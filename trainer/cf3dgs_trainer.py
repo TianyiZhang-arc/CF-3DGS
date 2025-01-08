@@ -412,11 +412,13 @@ class CFGaussianTrainer(GaussianTrainer):
             expname = pipe.expname
         pipe.convert_SHs_python = True
         optim_opt = copy(self.optim_cfg)
-        result_path = f"output/{expname}/{self.category}_{self.seq_name}"
+        # result_path = f"output/{expname}/{self.category}_{self.seq_name}"
+        result_path = pipe.expname
         os.makedirs(result_path, exist_ok=True)
 
         pose_dict = dict()
         poses_gt = []
+        poses_gt_dict = {}
         for seq_data in self.data:
             if self.data_type == "co3d":
                 R, t, _, _, _ = self.load_camera(seq_data)
@@ -431,7 +433,9 @@ class CFGaussianTrainer(GaussianTrainer):
             pose[:3, :3] = R
             pose[:3, 3] = t
             poses_gt.append(torch.from_numpy(pose))
+            poses_gt_dict[seq_data.image_name] = torch.from_numpy(pose)
         pose_dict["poses_gt"] = torch.stack(poses_gt)
+        pose_dict["poses_gt_dict"] = poses_gt_dict
         max_frame = self.seq_len
         start_frame = 1
         end_frame = max_frame
@@ -478,6 +482,7 @@ class CFGaussianTrainer(GaussianTrainer):
             with torch.no_grad():
                 psnr_test = 0.0
                 pose_dict["poses_pred"] = []
+                pose_dict["poses_pred_dict"] = {}
                 self.render_depth = OrderedDict()
                 self.gs_render.gaussians.rotate_seq = False
                 self.gs_render.gaussians.rotate_xyz = False
@@ -507,6 +512,8 @@ class CFGaussianTrainer(GaussianTrainer):
                     pose_dict["poses_pred"].append(pose.detach().cpu())
 
             pose_dict["poses_pred"] = torch.stack(pose_dict["poses_pred"])
+            for i, (k, v) in enumerate(pose_dict["poses_gt_dict"].items()):
+                pose_dict["poses_pred_dict"][k] = pose_dict["poses_pred"][i]
             pose_dict["poses_gt"] = torch.stack(poses_gt)
             pose_dict["match_results"] = self.match_results
             torch.save(

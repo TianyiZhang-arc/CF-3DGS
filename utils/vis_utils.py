@@ -13,7 +13,10 @@ import matplotlib.pyplot as plt
 import copy
 from evo.core.trajectory import PosePath3D, PoseTrajectory3D
 from evo.main_ape import ape
-from evo.tools import plot
+try:
+    from evo.tools import plot
+except:
+    pass
 from evo.core import sync
 from evo.tools import file_interface
 from evo.core import metrics

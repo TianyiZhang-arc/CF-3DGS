@@ -9,7 +9,7 @@
 
 
 import torch
-from lietorch import SO3, SE3, Sim3
+# from lietorch import SO3, SE3, Sim3
 import numpy as np
 from utils.general_utils import inverse_sigmoid, get_expon_lr_func, build_rotation
 from torch import nn
@@ -23,11 +23,14 @@ from utils.general_utils import strip_symmetric, build_scaling_rotation
 from utils.sh_utils import eval_sh
 import math
 
+try:
+    from diff_gaussian_rasterization import (
+        GaussianRasterizationSettings,
+        GaussianRasterizer,
+    )
+except:
+    pass
 
-from diff_gaussian_rasterization import (
-    GaussianRasterizationSettings,
-    GaussianRasterizer,
-)
 from utils.camera_conversion import (
     matrix_to_quaternion,
     matrix_to_rotation_6d,
