@@ -56,13 +56,13 @@ def compute_rpe(gt, pred):
         rot_errors.append(rotation_error(rel_err))
     rpe_trans = np.mean(np.asarray(trans_errors))
     rpe_rot = np.mean(np.asarray(rot_errors))
-    return rpe_trans, rpe_rot
+    return rpe_trans * 100, rpe_rot * 180 / np.pi
 
 def compute_ATE(gt, pred):
     """Compute RMSE of ATE
     Args:
-        gt: ground-truth poses
-        pred: predicted poses
+        gt: c2w
+        pred: c2w
     """
     errors = []
 

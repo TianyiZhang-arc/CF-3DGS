@@ -86,18 +86,21 @@ def evaluate(model_paths):
                 gt_poses.append(gt_poses_dict[k])
             train_poses, gt_poses = torch.stack(train_poses), torch.stack(gt_poses)
             # report_pose_error
-            auc, ape_rot, ape_trans = report_pose_error(train_poses, gt_poses)                
+            auc, ape_rot, ape_trans, rpe_rot, rpe_trans, ate = report_pose_error(train_poses, gt_poses)                
 
             print("  SSIM : {:>12.7f}".format(torch.tensor(ssims).mean()))
             print("  PSNR : {:>12.7f}".format(torch.tensor(psnrs).mean()))
             print("  LPIPS: {:>12.7f}".format(torch.tensor(lpipss).mean()))
-            print('  Pose' + print_pose_error(auc, ape_rot, ape_trans))
+            print('  Pose' + print_pose_error(auc, ape_rot, ape_trans, rpe_rot, rpe_trans, ate))
 
             full_dict[scene_dir][method].update({"SSIM": torch.tensor(ssims).mean().item(),
                                                     "PSNR": torch.tensor(psnrs).mean().item(),
                                                     "LPIPS": torch.tensor(lpipss).mean().item(),
                                                     "APE_t": ape_trans,
                                                     "APE_r": ape_rot,
+                                                    "RPE_t": rpe_trans,
+                                                    "RPE_r": rpe_rot,
+                                                    "ATE": ate,
                                                     "AUC": [auc[k] for k in auc],
                                                     })
             per_view_dict[scene_dir][method].update({"SSIM": {name: ssim for ssim, name in zip(torch.tensor(ssims).tolist(), image_names)},
