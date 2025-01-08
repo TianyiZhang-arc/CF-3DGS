@@ -37,12 +37,12 @@ DATASETS=(
 
 SCENES=(
     room
-   stump
-   counter
-   bonsai
-   garden
-   kitchen
-   bicycle
+#    stump
+#    counter
+#    bonsai
+#    garden
+#    kitchen
+#    bicycle
     )
 
 N_VIEWS=(
