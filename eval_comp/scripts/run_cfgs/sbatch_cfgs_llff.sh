@@ -14,7 +14,7 @@ ENV_ROOT_DIR="/cluster/project/cvg/students/zhangtia/miniconda3/etc/profile.d/co
 CODE_ROOT_DIR="/cluster/home/zhangtia/projects/CF-3DGS/"
 OUTPUT_ROOT_DIR="/cluster/scratch/zhangtia/output/"
 
-ENV_COMMAND="source ${ENV_ROOT_DIR} && conda activate cf3dgs "
+ENV_COMMAND="source ${ENV_ROOT_DIR} && conda activate gs-geo "
 SCRIPT_COMMAND="bash ${JOB_SCRIPT} ${DATA_ROOT_DIR} ${CODE_ROOT_DIR} ${OUTPUT_ROOT_DIR} ${ENV_ROOT_DIR}"
 
 eval $ENV_COMMAND

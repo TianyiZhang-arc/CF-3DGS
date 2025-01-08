@@ -70,7 +70,7 @@ for DATASET in "${DATASETS[@]}"; do
 
             # ----- conda envs -----
             CMD_ENV_EVAL="source ${CONDA_ROOT_DIR} && conda activate gs-geo"
-            CMD_ENV_TRAIN="source ${CONDA_ROOT_DIR} && conda activate cf3dgs"
+            CMD_ENV_TRAIN="source ${CONDA_ROOT_DIR} && conda activate gs-geo"
             CMD_ENV_MESH="source ${CONDA_ROOT_DIR} && conda activate gof"
 
             # ----- train test split -----
