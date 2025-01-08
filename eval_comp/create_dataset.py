@@ -7,8 +7,7 @@ import PIL.Image as Image
 import argparse
 import torch
 import numpy as np
-from utils import *
-import pycolmap
+from eval_utils.io_utils import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--source_path", type=str)

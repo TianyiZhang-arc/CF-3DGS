@@ -2,8 +2,6 @@ import torch
 from gsplat.rendering import rasterization
 from scene.gaussian_model import GaussianModel
 
-
-
 def render(
     viewpoint_camera,
     pc: GaussianModel,
@@ -26,12 +24,6 @@ def render(
     means3D = pc.get_xyz
     opacity = pc.get_opacity
     colors = pc.get_features
-    if args.detach_xyz:
-        means3D = means3D.detach()
-    if args.detach_opacity:
-        opacity = opacity.detach()
-    if args.detach_features:
-        colors = colors.detach()
 
     # If precomputed 3d covariance is provided, use it. If not, then it will be computed from
     # scaling / rotation by the rasterizer.
@@ -47,11 +39,6 @@ def render(
         else:
             scales = pc.get_scaling
         rotations = pc.get_rotation
-    
-    if args.detach_rotation:
-        rotations = rotations.detach()
-    if args.detach_scaling:
-        scales = scales.detach()
     
     # # If precomputed colors are provided, use them. Otherwise, if it is desired to precompute colors
     # # from SHs in Python, do it. If not, then SH -> RGB conversion will be done by rasterizer.

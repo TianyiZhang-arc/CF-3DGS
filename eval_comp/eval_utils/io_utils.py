@@ -2,7 +2,7 @@ import os
 import numpy as np
 import json
 from PIL import Image
-from eval_comp.eval_utils.colmap_loader import read_extrinsics_binary, read_intrinsics_binary, read_extrinsics_text, read_intrinsics_text, rotmat2qvec, qvec2rotmat
+from eval_utils.colmap_loader import read_extrinsics_binary, read_intrinsics_binary, read_extrinsics_text, read_intrinsics_text, rotmat2qvec, qvec2rotmat
 
 def read_train_test_split(split_path, img_base_path=None):
     with open(split_path, 'r') as f:

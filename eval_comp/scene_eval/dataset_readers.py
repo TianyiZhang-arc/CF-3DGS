@@ -18,10 +18,10 @@ import json
 from pathlib import Path
 from plyfile import PlyData, PlyElement
 
-from eval_comp.eval_utils.colmap_loader import read_extrinsics_text, read_intrinsics_text, qvec2rotmat, \
+from eval_utils.colmap_loader import read_extrinsics_text, read_intrinsics_text, qvec2rotmat, \
     read_extrinsics_binary, read_intrinsics_binary, read_points3D_binary, read_points3D_text
-from eval_comp.eval_utils.graphics_utils import getWorld2View, focal2fov, fov2focal
-from eval_comp.eval_utils.sh_utils import SH2RGB
+from eval_utils.graphics_utils import getWorld2View, focal2fov, fov2focal
+from eval_utils.sh_utils import SH2RGB
 from scene.gaussian_model import BasicPointCloud
 
 class CameraInfo(NamedTuple):
@@ -178,6 +178,7 @@ def create_random_points3d_from_tracks(tracks, id2image, use_track_color=True):
     return pts, colors 
 
 def readColmapSceneInfo(path, images, eval):
+    # load train infos
     try:
         cameras_extrinsic_file = os.path.join(path, "sparse/0", "images.bin")
         cameras_intrinsic_file = os.path.join(path, "sparse/0", "cameras.bin")
@@ -188,7 +189,7 @@ def readColmapSceneInfo(path, images, eval):
         cameras_intrinsic_file = os.path.join(path, "sparse/0", "cameras.txt")
         cam_extrinsics = read_extrinsics_text(cameras_extrinsic_file)
         cam_intrinsics = read_intrinsics_text(cameras_intrinsic_file)
-
+    
     # load gt infos
     if os.listdir(os.path.join(path, "gt", "sparse/0")): # not empty
         cameras_extrinsic_file = os.path.join(path, "gt", "sparse/0", "images.txt")
@@ -200,7 +201,7 @@ def readColmapSceneInfo(path, images, eval):
         cam_extrinsics_gt, cam_intrinsics_gt = None, None
 
     # reading_dir = "images" if images == None else images
-    cam_infos_unsorted = readColmapCameras(cam_extrinsics=cam_extrinsics, cam_intrinsics=cam_intrinsics, images_folder=os.path.join(path, "images"))
+    cam_infos_unsorted = readColmapCameras(cam_extrinsics=cam_extrinsics, cam_intrinsics=cam_intrinsics, images_folder=os.path.join(path, "images"), cam_extrinsics_gt=cam_extrinsics_gt)
     cam_infos = sorted(cam_infos_unsorted.copy(), key = lambda x : x.image_name)
     train_cam_infos = cam_infos
     if eval: 
@@ -208,7 +209,7 @@ def readColmapSceneInfo(path, images, eval):
         test_image_names = os.listdir(test_image_folder)
         cam_extrinsics = {cam_extrinsics_gt[name].id: cam_extrinsics_gt[name] for name in test_image_names}
         cam_intrinsics = cam_intrinsics_gt.copy()
-        cam_infos_unsorted = readColmapCameras(cam_extrinsics=cam_extrinsics, cam_intrinsics=cam_intrinsics, images_folder=test_image_folder)
+        cam_infos_unsorted = readColmapCameras(cam_extrinsics=cam_extrinsics, cam_intrinsics=cam_intrinsics, images_folder=test_image_folder, cam_extrinsics_gt=cam_extrinsics_gt)
         cam_infos = sorted(cam_infos_unsorted.copy(), key = lambda x : x.image_name)
         test_cam_infos = cam_infos
     else:

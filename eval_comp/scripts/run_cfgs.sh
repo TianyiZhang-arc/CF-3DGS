@@ -21,23 +21,30 @@ else
     OUTPUT_ROOT_DIR="/local/home/zhangtia/projects/CF-3DGS/"
 fi
 
+if [ -n "$4" ]; then
+    CONDA_ROOT_DIR=$4
+else
+    CONDA_ROOT_DIR="/local/home/zhangtia/miniconda3/etc/profile.d/conda.sh"
+fi
+
 SOURCE_ROOT_DIR=${CODE_ROOT_DIR}/data/
 MODEL_ROOT_DIR=${OUTPUT_ROOT_DIR}/output/
-IMG_DIR="images_8/"
+IMG_DIR="images_4/"
 
 DATASETS=(
-    llff
+    tnt
     )
 
 SCENES=(
-    horns
+    Barn
     )
 
 N_VIEWS=(
-    -1
+    12
     )
 
 max_test_view=-1
+gs_render_iter=30000
 
 for DATASET in "${DATASETS[@]}"; do
     for SCENE in "${SCENES[@]}"; do
@@ -55,9 +62,11 @@ for DATASET in "${DATASETS[@]}"; do
             # Absolute paths for results
             MODEL_PATH=${MODEL_ROOT_DIR}/${DATASET}/${SCENE}/${N_VIEW}_views/
             TEST_IMG_PATH=${SOURCE_DIR}/images/test/
-            PCD_PATH=${MODEL_PATH}/point_cloud/iteration_30000/point_cloud.ply # TODO: change to this form, delete it
-            POSE_PATH=${MODEL_PATH}/train_pose/pose_30000.pt # TODO: change to this form, delete it
-            ################ preparation step ##########################
+
+            # ----- conda envs -----
+            CMD_ENV_EVAL="source ${CONDA_ROOT_DIR} && conda init && conda activate gs-geo"
+            CMD_ENV_TRAIN="source ${CONDA_ROOT_DIR} && conda init && conda activate cf3dgs"
+            CMD_ENV_MESH="source ${CONDA_ROOT_DIR} && conda init && conda activate gof"
 
             # ----- train test split -----
             CMD_S="python ${CODE_ROOT_DIR}/eval_comp/generate_split.py \
@@ -83,36 +92,48 @@ for DATASET in "${DATASETS[@]}"; do
             --data_type colmap"
 
             # ----- evaluation -----
-            CMD_R="python render.py \
-            --test_img_path ${TEST_IMG_PATH} \
+            CMD_C="python ${CODE_ROOT_DIR}/eval_comp/scripts/convert_cf3dgs.py \
+            -s ${SOURCE_PATH} \
+            -m ${MODEL_PATH} \
+            --iteration ${gs_render_iter}"
+
+            CMD_R="python ${CODE_ROOT_DIR}/eval_comp/render.py \
+            --eval \
+            -s ${SOURCE_PATH} \
+            -m ${MODEL_PATH} \
+            --iteration ${gs_render_iter} \
+            --optim_test_pose_iter 500 \
+            --optim_test_pose \
+            "
+
+            CMD_M="python ${CODE_ROOT_DIR}/eval_comp/metrics.py \
+            -m ${MODEL_PATH} \
+            "
+            
+            # TODO
+            CMD_G="python ${CODE_ROOT_DIR}/eval_comp/eval_tnt_mesh.py \
+            --gt_path ${TNT_EVAL_PATH} \
             --ply_path ${PCD_PATH} \
             --pose_path ${POSE_PATH} \
             "
-            CMD_M="python metric.py \
-            -m ${MODEL_PATH}/${EXP_NAME} \
-            --pose_path ${POSE_PATH} \            
-            "
             
-            CMD_G="python eval_tnt_mesh.py \
-            --gt_path ${TNT_EVAL_PATH} \
-            --ply_path ${PCD_PATH} \
-            --pose_path ${POSE_PATH} \            
-            "
-            
-            # echo "========= ${SCENE}: Create Dataset ========="
-            # eval $CMD_S
-            # eval $CMD_D
-            # echo "========= ${SCENE}: Train ========="
-            # eval $CMD_T
+            echo "========= ${SCENE}: Create Dataset ========="
+            eval $CMD_S
+            eval $CMD_D
+            echo "========= ${SCENE}: Train ========="
+            eval $CMD_T
+            echo "========= ${SCENE}: Convert Results ========="
+            eval $CMD_C
             echo "========= ${SCENE}: Render ========="
+            eval $CMD_ENV_EVAL
             eval $CMD_R
-            # echo "========= ${SCENE}: Metric ========="
-            # eval $CMD_M
-            # echo "========= ${SCENE}: geometry ========="
+            echo "========= ${SCENE}: Metric ========="
+            eval $CMD_M
+            # echo "========= ${SCENE}: Mesh ========="
             # if [ "$DATASET" = "tnt" ]; then
             #     echo $CMD_G
             # else
-            #     eval "Skip geometry evaluation."
+            #     eval "Skip mesh evaluation."
             # fi
         done
     done

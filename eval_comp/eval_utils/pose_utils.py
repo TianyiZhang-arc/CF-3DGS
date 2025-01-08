@@ -1,7 +1,7 @@
 import torch
 from eval_utils.utils_poses.align_traj import align_ate_c2b_use_a2b
 from eval_utils.utils_poses.comp_ate import eval_relpose, compute_auc,evaluate_camera_alignment
-from eval_utils.general_utils import getWorld2View
+from eval_utils.graphics_utils import getWorld2View
 
 def save_pose(path, cameras, gt=False):
     poses = {}

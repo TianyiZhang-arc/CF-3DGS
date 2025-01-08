@@ -16,9 +16,9 @@ import json
 from scene.gaussian_model import GaussianModel
 from arguments import ModelParams
 
-from eval_comp.eval_utils.general_utils import searchForMaxIteration
-from eval_comp.scene_eval.dataset_readers import sceneLoadTypeCallbacks
-from eval_comp.eval_utils.camera_utils import cameraList_from_camInfos, camera_to_JSON
+from eval_utils.general_utils import searchForMaxIteration
+from scene_eval.dataset_readers import sceneLoadTypeCallbacks
+from eval_utils.camera_utils import cameraList_from_camInfos, camera_to_JSON
 
 class Scene:
 
@@ -77,7 +77,7 @@ class Scene:
             self.test_cameras[resolution_scale] = cameraList_from_camInfos(scene_info.test_cameras, resolution_scale, args)
 
         if self.loaded_iter:
-            self.gaussians.load(os.path.join(self.model_path, "point_cloud", "iteration_" + str(self.loaded_iter)))
+            self.gaussians.load_ply(os.path.join(self.model_path, "point_cloud", "iteration_" + str(self.loaded_iter), 'point_cloud.ply'))
         else:
             self.gaussians.create_from_pcd(scene_info.point_cloud, self.cameras_extent)
 

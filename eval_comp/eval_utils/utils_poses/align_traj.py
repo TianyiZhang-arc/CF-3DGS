@@ -2,9 +2,9 @@ import numpy as np
 import torch
 from scipy.spatial.transform import Rotation as RotLib
 
-from utils.utils_poses.align_utils import alignTrajectory
-from utils.utils_poses.lie_group_helper import convert3x4_4x4, inv_3x4
-from utils.utils_poses.comp_ate import rotation_distance, translation_distance, evaluate_camera_alignment
+from eval_utils.utils_poses.align_utils import alignTrajectory
+from eval_utils.utils_poses.lie_group_helper import convert3x4_4x4, inv_3x4
+from eval_utils.utils_poses.comp_ate import rotation_distance, translation_distance, evaluate_camera_alignment
 
 
 def _pts_dist_max(pts):

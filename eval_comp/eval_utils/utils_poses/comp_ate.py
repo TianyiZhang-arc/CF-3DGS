@@ -5,7 +5,7 @@ import cv2
 from typing import List, Optional
 from collections import defaultdict
 
-from utils.utils_poses.lie_group_helper import inv_3x4
+from eval_utils.utils_poses.lie_group_helper import inv_3x4
 
 def rotation_error(pose_error):
     """Compute rotation error

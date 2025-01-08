@@ -13,9 +13,9 @@ import torch
 from torch import nn
 import numpy as np
 
-from eval_comp.eval_utils.graphics_utils import getWorld2View, getProjectionMatrix, getIntrinsicMatrix
-from eval_comp.eval_utils.utils_poses.lie_group_helper import rotation2quat, quat2rotation
-from eval_comp.eval_utils.pose_utils import rotation_6d_to_matrix
+from eval_utils.graphics_utils import getWorld2View, getProjectionMatrix, getIntrinsicMatrix
+from eval_utils.utils_poses.lie_group_helper import rotation2quat, quat2rotation
+from eval_utils.pose_utils import rotation_6d_to_matrix
 
 class Camera(nn.Module):
     def __init__(self, colmap_id, R, T, R_gt, T_gt, K,

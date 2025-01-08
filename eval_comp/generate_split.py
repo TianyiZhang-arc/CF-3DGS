@@ -7,7 +7,7 @@ import shutil
 from glob import glob
 import numpy as np
 
-from eval_comp.eval_utils.io_utils import read_train_test_split, write_train_test_split
+from eval_utils.io_utils import read_train_test_split, write_train_test_split
 
 def get_args_parser():
     

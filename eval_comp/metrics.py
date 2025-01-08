@@ -14,14 +14,15 @@ import os
 from PIL import Image
 import torch
 import torchvision.transforms.functional as tf
-from utils.loss_utils import ssim
+
 from lpipsPyTorch import lpips
 import json
 from tqdm import tqdm
 from argparse import ArgumentParser
 
-from eval_comp.eval_utils.image_utils import psnr
-from eval_comp.eval_utils.pose_utils import report_pose_error, print_pose_error
+from eval_utils.loss_utils import ssim
+from eval_utils.image_utils import psnr
+from eval_utils.pose_utils import report_pose_error, print_pose_error
 
 
 def readImages(renders_dir, gt_dir):
@@ -52,7 +53,6 @@ def evaluate(model_paths):
         per_view_dict_polytopeonly[scene_dir] = {}
 
         test_dir = Path(scene_dir) / "test"
-
         for method in os.listdir(test_dir):
             print("Method:", method)
 
@@ -78,35 +78,28 @@ def evaluate(model_paths):
 
             # pose metrics
             train_poses_dict = torch.load(os.path.join(scene_dir, 'train_pose', f'pose_{iteration}.pt'))
-            init_train_poses_dict = torch.load(os.path.join(scene_dir, 'train_pose', f'pose_init.pt'))
             gt_poses_dict = torch.load(os.path.join(scene_dir, 'train_pose', f'pose_gt.pt'))
             train_poses = []
-            init_train_poses = []
             gt_poses = []
             for k, v in train_poses_dict.items():
                 train_poses.append(train_poses_dict[k])
-                init_train_poses.append(init_train_poses_dict[k])
                 gt_poses.append(gt_poses_dict[k])
-            train_poses, init_train_poses, gt_poses = torch.stack(train_poses), torch.stack(init_train_poses), torch.stack(gt_poses)
+            train_poses, gt_poses = torch.stack(train_poses), torch.stack(gt_poses)
             # report_pose_error
-            auc_init, ape_rot_init, ape_trans_init = report_pose_error(init_train_poses, gt_poses) 
             auc, ape_rot, ape_trans = report_pose_error(train_poses, gt_poses)                
 
             print("  SSIM : {:>12.7f}".format(torch.tensor(ssims).mean()))
             print("  PSNR : {:>12.7f}".format(torch.tensor(psnrs).mean()))
             print("  LPIPS: {:>12.7f}".format(torch.tensor(lpipss).mean()))
             print('  Pose' + print_pose_error(auc, ape_rot, ape_trans))
-            print('  Pose(init)' + print_pose_error(auc_init, ape_rot_init, ape_trans_init))
 
             full_dict[scene_dir][method].update({"SSIM": torch.tensor(ssims).mean().item(),
                                                     "PSNR": torch.tensor(psnrs).mean().item(),
                                                     "LPIPS": torch.tensor(lpipss).mean().item(),
-                                                    "APE_t(init)": ape_trans_init,
                                                     "APE_t": ape_trans,
-                                                    "APE_r(init)": ape_rot_init,
                                                     "APE_r": ape_rot,
                                                     "AUC": [auc[k] for k in auc],
-                                                    "AUC(init)": [auc_init[k] for k in auc]})
+                                                    })
             per_view_dict[scene_dir][method].update({"SSIM": {name: ssim for ssim, name in zip(torch.tensor(ssims).tolist(), image_names)},
                                                         "PSNR": {name: psnr for psnr, name in zip(torch.tensor(psnrs).tolist(), image_names)},
                                                         "LPIPS": {name: lp for lp, name in zip(torch.tensor(lpipss).tolist(), image_names)}})
