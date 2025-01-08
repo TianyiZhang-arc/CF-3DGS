@@ -6,15 +6,15 @@
 
 # need to change the following ROOT_DIR
 
-JOB_SCRIPT="/cluster/project/cvg/students/zhangtia/projects/CF-3DGS/eval_comp/scripts/run_cfgs/run_cfgs_360.sh"
+JOB_SCRIPT="/cluster/home/zhangtia/projects/CF-3DGS/eval_comp/scripts/run_cfgs/run_cfgs_360.sh"
 DATA_ROOT_DIR="/cluster/project/cvg/students/zhangtia/data/"
 ENV_ROOT_DIR="/cluster/project/cvg/students/zhangtia/miniconda3/bin/activate"
-CODE_ROOT_DIR="/cluster/project/cvg/students/zhangtia/projects/CF-3DGS/"
+CODE_ROOT_DIR="/cluster/home/zhangtia/projects/CF-3DGS/"
 OUTPUT_ROOT_DIR="/cluster/scratch/zhangtia/output/"
 
 ENV_COMMAND="source ${ENV_ROOT_DIR} && conda activate cf3dgs "
 SCRIPT_COMMAND="${JOB_SCRIPT} ${DATA_ROOT_DIR} ${CODE_ROOT_DIR} ${OUTPUT_ROOT_DIR} ${ENV_ROOT_DIR}"
 
-eval $ENV_COMMAND
-eval $SCRIPT_COMMAND
+bash $ENV_COMMAND
+bash $SCRIPT_COMMAND
 
