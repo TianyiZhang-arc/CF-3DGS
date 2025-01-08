@@ -14,8 +14,8 @@ for dataset in datasets:
     dataset_path = root_path + f'/{dataset}'
     #### get ground truth ####
     colmap_folder = dataset_path + '/colmap'
-    if os.path.exists(colmap_folder):
-        shutil.rmtree(colmap_folder)
+    # if os.path.exists(colmap_folder):
+    #     shutil.rmtree(colmap_folder)
     os.makedirs(colmap_folder, exist_ok=True)
     print(dataset_path + '/images')
     image_path = dataset_path + '/images'
@@ -27,7 +27,7 @@ for dataset in datasets:
     command = f"colmap exhaustive_matcher --database_path {database_path}"
     os.system(command)
     os.makedirs(colmap_folder + '/sparse/0/', exist_ok=True)
-    command = f"colmap mapper --image_path {image_path} --database_path {database_path} --output_path {output_path}"
+    command = f"colmap mapper --Mapper.multiple_models False --image_path {image_path} --database_path {database_path} --output_path {output_path}"
     os.system(command)
     command = f"colmap model_converter --input_path {output_path + '/0'} --output_path {output_path + '/0'} --output_type TXT "
     os.system(command)
