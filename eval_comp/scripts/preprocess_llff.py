@@ -11,7 +11,6 @@ args = parser.parse_args()
 root_path = args.root_path
 datasets = [name for name in os.listdir(root_path) if os.path.isdir(os.path.join(root_path, name))]
 scales = [4, 8]
-dataset = ['room']
 for dataset in datasets:
     dataset_path = root_path + f'/{dataset}'
     #### resize ####
