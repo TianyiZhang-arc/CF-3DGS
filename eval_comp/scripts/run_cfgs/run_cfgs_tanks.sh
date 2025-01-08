@@ -41,8 +41,8 @@ SCENES=(
     Church
     Family
     Francis
-    Horse
-    Ignatius
+    # Horse
+    # Ignatius
     Museum
     )
 
