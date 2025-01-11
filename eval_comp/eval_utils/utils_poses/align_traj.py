@@ -24,7 +24,6 @@ def _pts_dist_max(pts):
         max_dist = dist.max()
     return max_dist
 
-
 def align_ate_c2b_use_a2b(traj_a, traj_b, traj_c=None):
     """Align c to b using the sim3 from a to b.
     :param traj_a:  (N0, 3/4, 4) torch tensor
@@ -34,7 +33,7 @@ def align_ate_c2b_use_a2b(traj_a, traj_b, traj_c=None):
     """
     assert traj_a.shape[0] == traj_b.shape[0]
     n_views = traj_a.shape[0]
-    if n_views < 10:
+    if n_views < 20:
         small_system = True
     else:
         small_system = False
