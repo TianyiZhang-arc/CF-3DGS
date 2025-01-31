@@ -59,7 +59,7 @@ class ModelParams(ParamGroup):
         self._resolution = -1
         self._white_background = False
         self.data_device = "cuda"
-        self.eval = True
+        self.eval = False
         self.rot_type = "6d"
         self.view_dependent = True
         # self.model_type = 'original'

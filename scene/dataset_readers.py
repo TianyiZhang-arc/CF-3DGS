@@ -152,7 +152,7 @@ def readColmapSceneInfo(path, images, eval):
         cam_intrinsics = read_intrinsics_text(cameras_intrinsic_file)
 
     # load gt infos
-    if os.listdir(os.path.join(path, "gt", "sparse/0")): # not empty
+    if os.path.exists(os.path.join(path, "gt", "sparse/0")) and os.listdir(os.path.join(path, "gt", "sparse/0")): # not empty
         cameras_extrinsic_file = os.path.join(path, "gt", "sparse/0", "images.txt")
         cameras_intrinsic_file = os.path.join(path, "gt", "sparse/0", "cameras.txt")
         cam_extrinsics_gt = read_extrinsics_text(cameras_extrinsic_file)
@@ -162,11 +162,11 @@ def readColmapSceneInfo(path, images, eval):
         cam_extrinsics_gt, cam_intrinsics_gt = None, None
 
     # reading_dir = "images" if images == None else images
-    cam_infos_unsorted = readColmapCameras(cam_extrinsics=cam_extrinsics, cam_intrinsics=cam_intrinsics, images_folder=os.path.join(path, "images"))
+    cam_infos_unsorted = readColmapCameras(cam_extrinsics=cam_extrinsics, cam_intrinsics=cam_intrinsics, images_folder=os.path.join(path, "images/train"))
     cam_infos = sorted(cam_infos_unsorted.copy(), key = lambda x : x.image_name)
     train_cam_infos = cam_infos
     if eval: 
-        test_image_folder = os.path.join(path, '../images/test')
+        test_image_folder = os.path.join(path, 'images/test')
         test_image_names = os.listdir(test_image_folder)
         cam_extrinsics = {cam_extrinsics_gt[name].id: cam_extrinsics_gt[name] for name in test_image_names}
         cam_intrinsics = cam_intrinsics_gt.copy()
