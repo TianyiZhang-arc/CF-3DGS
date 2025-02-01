@@ -396,7 +396,7 @@ class CFGaussianTrainer(GaussianTrainer):
         pipe = copy(self.pipe_cfg)
         self.single_step = 500 # 300 for faster training; 500 for better results
 
-        num_iterations = self.single_step * (self.seq_len // 10) * 10
+        num_iterations = self.single_step * (self.seq_len // 1) * 1
         self.optim_cfg.iterations = num_iterations
         self.optim_cfg.position_lr_max_steps = num_iterations
         self.optim_cfg.opacity_reset_interval = num_iterations // 10
