@@ -577,8 +577,11 @@ class CFGaussianTrainer(GaussianTrainer):
             self.gs_render.gaussians.rotate_seq = True
 
         sample_rate = 2 if "Family" in result_path else 8
-        pose_test_init = pose_dict_train['poses_pred'][int(
-            sample_rate/2)::sample_rate-1][:max_frame]
+        # pose_test_init = pose_dict_train['poses_pred'][int(
+        #     sample_rate/2)::sample_rate-1][:max_frame]
+        test_poses = torch.stack([cam.world_view_transform.transpose(0, 1) for cam in self.data])
+        from utils.utils_poses_ours.align_traj import align_ate_c2b_use_a2b as align_ate_c2b_use_a2b_ours
+        pose_test_init = align_ate_c2b_use_a2b_ours(pose_dict_train['poses_gt'].float().inverse(), pose_dict_train['poses_pred'].inverse(), test_poses.inverse())
         self.gs_render.gaussians.init_RT_seq(
             self.seq_len, pose_test_init.float())
         self.gs_render.gaussians.rotate_seq = True
@@ -647,6 +650,14 @@ class CFGaussianTrainer(GaussianTrainer):
                     ssim_test / end_frame,
                     lpips_test / end_frame))
             f.close()
+        stats = {
+            "psnr": psnr_test / end_frame,
+            "ssim": ssim_test / end_frame,
+            "lpips": lpips_test / end_frame
+        }
+        # save stats as json
+        with open(f"{result_path}/results.json", "w") as f:
+            json.dump(stats, f, indent=4)        
 
         print('Number of {:03d} to {:03d} frames: PSNR : {:.03f}, SSIM : {:.03f}, LPIPS : {:.03f}'.format(
             start_frame,
@@ -663,6 +674,8 @@ class CFGaussianTrainer(GaussianTrainer):
         os.makedirs(result_path, exist_ok=True)
         pose_path = os.path.join(result_path, 'ep00_init.pth')
         poses = torch.load(pose_path)
+        from utils.pose_utils import report_pose_error
+        ours_pose_error = report_pose_error(poses['poses_pred'].inverse(), poses['poses_gt'].inverse())
         poses_pred = poses['poses_pred'].inverse().cpu()
         poses_gt_c2w = poses['poses_gt'].inverse().cpu()
         poses_gt = poses_gt_c2w[:len(poses_pred)].clone()
@@ -687,6 +700,21 @@ class CFGaussianTrainer(GaussianTrainer):
                 rpe_rot * 180 / np.pi,
                 ate))
             f.close()
+        stats = {}
+        stats.update(
+            {
+                f"AUC_{k}": v for k, v in ours_pose_error["auc_dict"].items()
+            }
+        )
+        stats.update(
+            {
+                "APE_R": ours_pose_error["ape"]["r"],
+                "APE_t": ours_pose_error["ape"]["t"],
+            }
+        )
+        # save stats as json
+        with open(f"{result_path}/results.json", "w") as f:
+            json.dump(stats, f, indent=4)
 
     def align_pose(self, pose1, pose2):
         mtx1 = np.array(pose1, dtype=np.double, copy=True)
